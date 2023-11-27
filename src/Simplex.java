@@ -56,31 +56,38 @@ public class Simplex {
 
     public int pickMinColumn() {
         int column = -1;
-        float valor = 0;
+        float value = 0;
         for (int i = 0; i < matrix[0].length; i++) {
+            if (matrix[0][i] < 0 && i == 0) {
+                column = i;
+                value = matrix[0][i];
+            }
             if (isMax) {
-                if (matrix[0][i] < 0 && i == 0) {
+                if (column != -1 && matrix[0][i] < value) {
                     column = i;
-                    valor = matrix[0][i];
-                }
-
-                if (column != -1 && matrix[0][i] < valor) {
-                    column = i;
-                    valor = matrix[0][i];
+                    value = matrix[0][i];
                 }
             } else {
-                if (matrix[0][i] < 0 && i == 0) {
+                if (column != -1 && matrix[0][i] > value && matrix[0][i] < 0) {
                     column = i;
-                    valor = matrix[0][i];
-                }
-
-                if (column != -1 && matrix[0][i] > valor && matrix[0][i] < 0) {
-                    column = i;
-                    valor = matrix[0][i];
+                    value = matrix[0][i];
                 }
             }
         }
         return column;
+    }
+
+    public int pickMinRow(int column) {
+        int row = -1;
+        float value = -1;
+        for(int i = 0; i < matrix[0].length; i++) {
+            
+            if (value > (matrix[i][matrix[0].length - 1]/matrix[i][column]) && value > 0){
+                value = matrix[i][matrix[0].length - 1]/matrix[i][column];
+            }
+
+        }
+        return row;
     }
 
     @Override
