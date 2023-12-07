@@ -66,7 +66,7 @@ public class Simplex {
                 value = matrix[0][i];
             }
             if (isMax) {
-                if (column != -1 && matrix[0][i] < value) {
+                if (column != -1 && matrix[0][i] < value && matrix[0][i] < 0) {
                     column = i;
                     value = matrix[0][i];
                 }
@@ -96,16 +96,16 @@ public class Simplex {
         int coluna = pickMinColumn();
         while (coluna != -1) {
             int linha = pickMinRow(coluna);
-
             float valorPivo = matrix[linha][coluna];
             for (int i = 0; i < this.columns; i++) {
                 matrix[linha][i] = matrix[linha][i] / valorPivo;
             }
-
+            
             for (int i = 0; i < this.lines; i++) {
+                float firstElement = matrix[i][coluna];
                 for (int j = 0; j < this.columns; j++) {
                     if (i != linha) {
-                        matrix[i][j] = matrix[i][j] - (matrix[i][coluna] * matrix[linha][j]);
+                        matrix[i][j] = matrix[i][j] - (firstElement * matrix[linha][j]);
                     }
                 }
             }
@@ -124,6 +124,8 @@ public class Simplex {
 
     public static void main(String[] args) {
         Simplex simplex = new Simplex(args[0]);
+        System.out.print(simplex);
+        System.out.println("");
         simplex.solve();
         System.out.print(simplex);
     }
