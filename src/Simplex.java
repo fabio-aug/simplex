@@ -8,7 +8,6 @@ public class Simplex {
     private int numVariables;
     private int numRestrictions;
     private float[][] matrix;
-    private int[] base;
     private int lines;
     private int columns;
 
@@ -29,9 +28,6 @@ public class Simplex {
         this.isMax = Integer.parseInt(reader.nextLine()) > 0;
         this.numVariables = Integer.parseInt(reader.nextLine());
         this.numRestrictions = Integer.parseInt(reader.nextLine());
-        this.base = new int[this.numVariables + this.numRestrictions];
-        for (int i = 0; i < this.base.length; i++)
-            this.base[i] = (i < this.numVariables) ? 0 : 1;
         this.lines = this.numRestrictions + 1;
         this.columns = this.numVariables + this.numRestrictions + 1;
         this.matrix = new float[this.lines][this.columns];
@@ -58,34 +54,35 @@ public class Simplex {
     }
 
     public int pickMinColumn() {
-        int column = -1;
+        int column = 0;
         float value = 0;
-        for (int i = 0; i < this.columns; i++) {
-            if (matrix[0][i] < 0 && i == 0) {
+        for (int i = 0; i < this.columns - 1; i++) {
+            if (i == 0) {
                 column = i;
                 value = matrix[0][i];
             }
             if (isMax) {
-                if (column != -1 && matrix[0][i] < value && matrix[0][i] < 0) {
+                if (matrix[0][i] < value && matrix[0][i] < 0) {
                     column = i;
                     value = matrix[0][i];
                 }
             } else {
-                if (column != -1 && matrix[0][i] > value && matrix[0][i] < 0) {
+                if (matrix[0][i] > value && matrix[0][i] < 0) {
                     column = i;
                     value = matrix[0][i];
                 }
             }
         }
-        return column;
+        return (value < 0) ? column : -1;
     }
 
     public int pickMinRow(int column) {
         int row = 1;
         float value = (matrix[1][this.columns - 1] / matrix[1][column]);
         for (int i = 2; i < this.lines; i++) {
-            if (value > (matrix[i][this.columns - 1] / matrix[i][column]) && value > 0) {
-                value = matrix[i][this.columns - 1] / matrix[i][column];
+            float newValue = (matrix[i][this.columns - 1] / matrix[i][column]);
+            if (value > newValue && newValue > 0) {
+                value = newValue;
                 row = i;
             }
         }
@@ -100,7 +97,7 @@ public class Simplex {
             for (int i = 0; i < this.columns; i++) {
                 matrix[linha][i] = matrix[linha][i] / valorPivo;
             }
-            
+
             for (int i = 0; i < this.lines; i++) {
                 float firstElement = matrix[i][coluna];
                 for (int j = 0; j < this.columns; j++) {
@@ -113,6 +110,32 @@ public class Simplex {
         }
     }
 
+    public void showBase() {
+        int aux = 1;
+        String base = "";
+        boolean isS = false;
+        for (int i = 0; i < this.columns; i++) {
+            if (this.matrix[0][i] == 0) {
+                if (aux <= this.numVariables && !isS) {
+                    base += "X" + aux + " ";
+                    if (aux == this.numVariables) {
+                        aux = 0;
+                        isS = true;
+                    }
+                } else {
+                    base += "S" + aux + " ";
+                }
+            }
+            aux++;
+        }
+        System.out.println(base);
+    }
+
+    public void result() {
+        showBase();
+        System.out.println(this);
+    }
+
     @Override
     public String toString() {
         String print = "";
@@ -123,10 +146,8 @@ public class Simplex {
     }
 
     public static void main(String[] args) {
-        Simplex simplex = new Simplex(args[0]);
-        System.out.print(simplex);
-        System.out.println("");
+        Simplex simplex = new Simplex("input2.txt");
         simplex.solve();
-        System.out.print(simplex);
+        simplex.result();
     }
 }
