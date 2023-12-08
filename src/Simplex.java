@@ -34,26 +34,29 @@ public class Simplex {
 
         for (int i = 0; i < this.lines; i++) {
             String data = reader.nextLine();
-            String[] numeros = data.split(" ");
+            String[] numbers = data.split(" ");
 
             for (int j = 0; j < this.columns; j++) {
                 if (j < this.numVariables) {
-                    this.matrix[i][j] = Float.parseFloat(numeros[j]);
-                    if (i == 0)
+                    this.matrix[i][j] = Float.parseFloat(numbers[j]);
+                    if (i == 0 && this.matrix[i][j]>0)
                         this.matrix[i][j] = this.matrix[i][j] * -1;
+                    else{
+                        this.matrix[i][j] = this.matrix[i][j];
+                    }
                 } else {
                     if (i != 0)
                         this.matrix[i][this.numVariables + i - 1] = 1;
                     this.matrix[i][j] = 0;
                 }
                 if (i != 0)
-                    this.matrix[i][this.matrix[i].length - 1] = Float.parseFloat(numeros[numeros.length - 1]);
+                    this.matrix[i][this.matrix[i].length - 1] = Float.parseFloat(numbers[numbers.length - 1]);
             }
         }
         reader.close();
     }
 
-    public int pickMinColumn() {
+    public int pickColumn() {
         int column = 0;
         float value = 0;
         for (int i = 0; i < this.columns - 1; i++) {
@@ -76,7 +79,7 @@ public class Simplex {
         return (value < 0) ? column : -1;
     }
 
-    public int pickMinRow(int column) {
+    public int pickRow(int column) {
         int row = 1;
         float value = (matrix[1][this.columns - 1] / matrix[1][column]);
         for (int i = 2; i < this.lines; i++) {
@@ -90,23 +93,23 @@ public class Simplex {
     }
 
     public void solve() {
-        int coluna = pickMinColumn();
-        while (coluna != -1) {
-            int linha = pickMinRow(coluna);
-            float valorPivo = matrix[linha][coluna];
+        int column = pickColumn();
+        while (column != -1) {
+            int line = pickRow(column);
+            float pivotValue = matrix[line][column];
             for (int i = 0; i < this.columns; i++) {
-                matrix[linha][i] = matrix[linha][i] / valorPivo;
+                matrix[line][i] = matrix[line][i] / pivotValue;
             }
 
             for (int i = 0; i < this.lines; i++) {
-                float firstElement = matrix[i][coluna];
+                float firstElement = matrix[i][column];
                 for (int j = 0; j < this.columns; j++) {
-                    if (i != linha) {
-                        matrix[i][j] = matrix[i][j] - (firstElement * matrix[linha][j]);
+                    if (i != line) {
+                        matrix[i][j] = matrix[i][j] - (firstElement * matrix[line][j]);
                     }
                 }
             }
-            coluna = pickMinColumn();
+            column = pickColumn();
         }
     }
 
@@ -146,7 +149,7 @@ public class Simplex {
     }
 
     public static void main(String[] args) {
-        Simplex simplex = new Simplex("input2.txt");
+        Simplex simplex = new Simplex(args[0]);
         simplex.solve();
         simplex.result();
     }
